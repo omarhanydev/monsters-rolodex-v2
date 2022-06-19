@@ -1,40 +1,51 @@
-import logo from './logo.svg';
-import './App.css';
-import { Component } from 'react';
+import { Component } from "react";
+
+import CardList from "./components/card-list/card-list.component";
+import "./App.css";
+import SearchBox from "./components/search-box/search-box.component";
 
 class App extends Component {
   constructor() {
     super();
 
     this.state = {
-      name: {
-        firstName: 'Omar',
-        lastName: 'Hany'
-      },
-      company: 'Izam'
+      monsters: [],
+      searchField: "",
     };
   }
 
+  componentDidMount() {
+    fetch("https://jsonplaceholder.typicode.com/users/")
+      .then((response) => response.json())
+      .then((users) => this.setState({ monsters: users }));
+  }
+
+  onSearchChange = (event) => {
+    const searchField = event.target.value.toLocaleLowerCase();
+    this.setState(() => {
+      return { searchField };
+    });
+  };
+
   render() {
+    const { monsters, searchField } = this.state;
+    const { onSearchChange } = this;
+
+    const filteredMonsters = monsters.filter((monster) => {
+      return monster.name.toLocaleLowerCase().includes(searchField);
+    });
     return (
       <div className="App">
-        <header className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
-          <p>
-            Hi {this.state.name.firstName} {this.state.name.lastName}, I work in {this.state.company}
-          </p>
-          <button onClick={() => {
-            // this.setState({name: {firstName: 'Zoho', lastName: 'Test'}});
-            // this.setState((state, props) => {
-            this.setState(
-              () => {
-              return {name: {firstName: 'Zoho', lastName: 'Test'}}
-            },
-              () => {
-              console.log(this.state);
-            });
-          }}>Change Name</button>
-        </header>
+        <br />
+        <h1>Monsters Rolodex</h1>
+        <br />
+        <br />
+        <SearchBox
+          className="search-box"
+          onChangeHandler={onSearchChange}
+          placeholder="search monsters"
+        />
+        <CardList monsters={filteredMonsters} />
       </div>
     );
   }
